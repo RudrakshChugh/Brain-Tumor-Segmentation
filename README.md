@@ -114,8 +114,6 @@ Brain Project/
 |   |-- train.py
 |   `-- utils.py
 |-- requirements.txt
-|-- summary.pdf
-|-- WiDS Report.pdf
 `-- README.md
 ```
 
@@ -165,8 +163,6 @@ dice = dice_coefficient(y_test, binary_predictions)
 - `docs/project_report.md`: detailed project writeup
 - `docs/model_card.md`: model card with intended use, limitations, and responsible-use notes
 - `checkpoints/README.md`: explanation of saved model checkpoints and experiment mapping
-- `WiDS Report.pdf`: original detailed report artifact
-- `summary.pdf`: short project summary artifact
 
 ## Responsible Use
 
