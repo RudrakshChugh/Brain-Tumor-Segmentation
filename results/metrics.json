@@ -1,0 +1,25 @@
+{
+  "task": "binary_brain_tumor_segmentation",
+  "metric": "dice_coefficient",
+  "image_size": [128, 128],
+  "models": {
+    "model_1": {
+      "checkpoint": "checkpoints/2D_secondrun.hdf5",
+      "loss": "binary_crossentropy",
+      "reported_test_dice": 0.76,
+      "notes": "Baseline 2D U-Net run using binary cross-entropy."
+    },
+    "model_2": {
+      "checkpoint": "checkpoints/model2_1.hdf5",
+      "loss": "dice_loss_plus_weighted_binary_crossentropy",
+      "reported_test_dice": 0.756,
+      "notes": "Dice-aware training objective for class-imbalanced segmentation."
+    },
+    "model_3": {
+      "checkpoint": "checkpoints/model2.hdf5",
+      "loss": "tuned_dice_loss_plus_weighted_binary_crossentropy",
+      "reported_test_dice": 0.815,
+      "notes": "Best reported 2D U-Net checkpoint."
+    }
+  }
+}

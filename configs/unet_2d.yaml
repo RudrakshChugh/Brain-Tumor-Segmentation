@@ -1,0 +1,33 @@
+experiment_name: unet_2d_dice_weighted_bce
+task: binary_brain_tumor_segmentation
+
+data:
+  dataset: lgg_mri_segmentation
+  image_size: [128, 128]
+  input_channels: 3
+  mask_channels: 1
+  normalization: divide_by_255
+  mask_threshold: 0.5
+
+model:
+  architecture: 2d_unet
+  base_filters: 16
+  dropout: 0.1
+  output_activation: sigmoid
+
+training:
+  batch_size: 4
+  epochs: 40
+  optimizer: adam
+  learning_rate: 0.0001
+  learning_rate_schedule: cosine_decay
+  optimizer_decay: 0.00001
+  loss: dice_loss_plus_weighted_binary_crossentropy
+  metric: dice_score
+  early_stopping_monitor: val_DiceScore
+  early_stopping_mode: max
+
+inference:
+  checkpoint: checkpoints/model2.hdf5
+  threshold: 0.5
+  output_dir: outputs
