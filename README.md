@@ -12,6 +12,7 @@ The project focuses on medical image segmentation, custom loss design for imbala
 - Evaluated segmentation quality using Dice coefficient rather than accuracy alone.
 - Packaged trained model checkpoints and prediction visualizations.
 - Explored a 3D U-Net path for volumetric MRI segmentation and documented hardware constraints.
+- Added checkpoint-based inference, experiment metrics, and dataset setup documentation for reproducibility.
 
 ## Problem Statement
 
@@ -90,27 +91,53 @@ The best reported model used a tuned Dice-aware objective and achieved the stron
 
 Accuracy was high for early models, but Dice coefficient is the more meaningful metric for this task because the tumor region occupies a much smaller area than the background.
 
+The metrics are also stored in `results/metrics.json` for easier inspection.
+
+## Inference
+
+Run prediction with a trained checkpoint:
+
+```bash
+python src/predict.py \
+  --image path/to/input_mri.png \
+  --checkpoint checkpoints/model2.hdf5 \
+  --output-dir outputs
+```
+
+The script saves:
+
+- `outputs/predicted_mask.png`
+- `outputs/prediction_overlay.png`
+
 ## Repository Structure
 
 ```text
 Brain Project/
+|-- configs/
+|   `-- unet_2d.yaml
 |-- checkpoints/
 |   |-- 2D_firstrun.hdf5
 |   |-- 2D_secondrun.hdf5
 |   |-- best_model.h5
 |   |-- best_model2.h5
 |   |-- model2.hdf5
-|   `-- model2_1.hdf5
+|   |-- model2_1.hdf5
+|   `-- README.md
 |-- docs/
+|   |-- dataset_setup.md
+|   |-- experiments.md
 |   |-- model_card.md
 |   `-- project_report.md
+|-- outputs/
 |-- results/
+|   |-- metrics.json
 |   |-- predicted_result.zip
 |   `-- sample_predictions/
 |-- src/
 |   |-- dataset.py
 |   |-- evaluate.py
 |   |-- model.py
+|   |-- predict.py
 |   |-- train.py
 |   `-- utils.py
 |-- requirements.txt
@@ -160,6 +187,10 @@ dice = dice_coefficient(y_test, binary_predictions)
 
 ## Project Documents
 
+- `configs/unet_2d.yaml`: main 2D U-Net experiment configuration
+- `results/metrics.json`: reported model comparison metrics
+- `docs/dataset_setup.md`: dataset download and folder-structure guide
+- `docs/experiments.md`: experiment comparison, ablation notes, and error analysis
 - `docs/project_report.md`: detailed project writeup
 - `docs/model_card.md`: model card with intended use, limitations, and responsible-use notes
 - `checkpoints/README.md`: explanation of saved model checkpoints and experiment mapping
