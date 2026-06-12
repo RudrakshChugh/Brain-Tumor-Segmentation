@@ -23,9 +23,23 @@ This project uses semantic segmentation to produce a binary mask for each MRI im
 - Input: brain MRI image
 - Output: tumor segmentation mask
 
-## Example Predictions
+## Results
 
-Sample prediction artifacts are included from the final 2D model output.
+The best reported model used a tuned Dice-aware objective and achieved the strongest segmentation performance.
+
+| Model | Loss / Objective | Main Metric | Reported Test Dice |
+| --- | --- | --- | --- |
+| Model 1 | Binary cross-entropy | Accuracy + Dice | 0.76 |
+| Model 2 | Dice loss + weighted BCE | Dice score | 0.756 |
+| **Model 3** | **Tuned Dice loss + weighted BCE** | **Dice score** | **0.815** |
+
+Accuracy was high for early models, but Dice coefficient is the more meaningful metric for this task because the tumor region occupies a much smaller area than the background.
+
+The metrics are also stored in `results/metrics.json` for programmatic inspection.
+
+### Sample Predictions
+
+Sample prediction artifacts from the final 2D model output:
 
 | Prediction 1 | Prediction 2 |
 | --- | --- |
@@ -39,19 +53,10 @@ The complete prediction archive is available at `results/predicted_result.zip`.
 
 ## Datasets
 
-### LGG MRI Segmentation Dataset
-
-- Source: Kaggle, `mateuszbuda/lgg-mri-segmentation`
-- Used for the main 2D U-Net pipeline
-- Contains MRI images and manually annotated FLAIR abnormality segmentation masks
-- Images and masks are resized to `128 x 128`
-
-### BraTS 2020 Dataset
-
-- Source: Kaggle, `awsaf49/brats20-dataset-training-validation`
-- Used for 3D U-Net exploration
-- Contains multi-modal volumetric MRI scans such as T1, T1ce, T2, and FLAIR
-- Full 3D training was limited by local GPU memory constraints
+| Dataset | Source | Usage |
+| --- | --- | --- |
+| **LGG MRI Segmentation** | Kaggle, `mateuszbuda/lgg-mri-segmentation` | Main 2D U-Net pipeline. Contains MRI images and manually annotated FLAIR abnormality segmentation masks. Images and masks are resized to `128 x 128`. |
+| **BraTS 2020** | Kaggle, `awsaf49/brats20-dataset-training-validation` | 3D U-Net exploration. Contains multi-modal volumetric MRI scans (T1, T1ce, T2, FLAIR). Full 3D training was limited by local GPU memory constraints. |
 
 ## Methodology
 
@@ -70,83 +75,54 @@ MRI Data
 
 The main model is a 2D U-Net:
 
-- Encoder: repeated convolution blocks with batch normalization and ReLU activations
-- Downsampling: max pooling and dropout
-- Bottleneck: deeper convolutional feature extraction
-- Decoder: transposed convolutions for upsampling
-- Skip connections: concatenate encoder features with decoder features
-- Output: `1 x 1` convolution with sigmoid activation for binary segmentation
+| Stage | Description |
+| --- | --- |
+| **Encoder** | Repeated convolution blocks with batch normalization and ReLU activations |
+| **Downsampling** | Max pooling and dropout |
+| **Bottleneck** | Deeper convolutional feature extraction |
+| **Decoder** | Transposed convolutions for upsampling |
+| **Skip Connections** | Concatenate encoder features with decoder features |
+| **Output** | `1 x 1` convolution with sigmoid activation for binary segmentation |
 
 The repository also includes a 3D U-Net implementation for volumetric MRI experiments.
-
-## Results
-
-The best reported model used a tuned Dice-aware objective and achieved the strongest segmentation performance.
-
-| Model | Loss / Objective | Main Metric | Reported Test Dice |
-| --- | --- | --- | --- |
-| Model 1 | Binary cross-entropy | Accuracy + Dice | 0.76 |
-| Model 2 | Dice loss + weighted BCE | Dice score | 0.756 |
-| Model 3 | Tuned Dice loss + weighted BCE | Dice score | 0.815 |
-
-Accuracy was high for early models, but Dice coefficient is the more meaningful metric for this task because the tumor region occupies a much smaller area than the background.
-
-The metrics are also stored in `results/metrics.json` for easier inspection.
-
-## Inference
-
-Run prediction with a trained checkpoint:
-
-```bash
-python src/predict.py \
-  --image path/to/input_mri.png \
-  --checkpoint checkpoints/model2.hdf5 \
-  --output-dir outputs
-```
-
-The script saves:
-
-- `outputs/predicted_mask.png`
-- `outputs/prediction_overlay.png`
 
 ## Repository Structure
 
 ```text
-Brain Project/
-|-- configs/
-|   `-- unet_2d.yaml
-|-- checkpoints/
-|   |-- 2D_firstrun.hdf5
-|   |-- 2D_secondrun.hdf5
-|   |-- best_model.h5
-|   |-- best_model2.h5
-|   |-- model2.hdf5
-|   |-- model2_1.hdf5
-|   `-- README.md
-|-- docs/
-|   |-- dataset_setup.md
-|   |-- experiments.md
-|   |-- model_card.md
-|   `-- project_report.md
-|-- outputs/
-|-- results/
-|   |-- metrics.json
-|   |-- predicted_result.zip
-|   `-- sample_predictions/
-|-- src/
-|   |-- dataset.py
-|   |-- evaluate.py
-|   |-- model.py
-|   |-- predict.py
-|   |-- train.py
-|   `-- utils.py
-|-- requirements.txt
-`-- README.md
+├── configs/
+│   └── unet_2d.yaml             # Main 2D U-Net experiment configuration
+├── checkpoints/
+│   ├── 2D_firstrun.hdf5
+│   ├── 2D_secondrun.hdf5
+│   ├── best_model.h5
+│   ├── best_model2.h5
+│   ├── model2.hdf5
+│   ├── model2_1.hdf5
+│   └── README.md
+├── docs/
+│   ├── dataset_setup.md          # Dataset download & folder-structure guide
+│   ├── experiments.md            # Experiment comparison & ablation notes
+│   ├── model_card.md             # Intended use, limitations & responsible-use notes
+│   └── project_report.md         # Detailed project writeup
+├── outputs/                      # Inference output directory
+├── results/
+│   ├── metrics.json              # Model comparison metrics
+│   ├── predicted_result.zip      # Full prediction archive
+│   └── sample_predictions/       # Selected prediction visualizations
+├── src/
+│   ├── dataset.py                # Data loading & preprocessing
+│   ├── evaluate.py               # Dice coefficient & evaluation logic
+│   ├── model.py                  # U-Net architecture definition
+│   ├── predict.py                # Checkpoint-based inference
+│   ├── train.py                  # Training loop & checkpointing
+│   └── utils.py                  # Shared utilities
+├── requirements.txt
+└── README.md
 ```
 
-## Setup
+## Setup & Quick Start
 
-Create an environment and install dependencies:
+### 1. Environment Configuration
 
 ```bash
 pip install -r requirements.txt
@@ -154,7 +130,7 @@ pip install -r requirements.txt
 
 The project was built around TensorFlow/Keras, OpenCV, NumPy, Matplotlib, h5py, and supporting medical-imaging libraries.
 
-## Usage
+### 2. Training
 
 The source modules are organized so the workflow can be used from scripts or notebooks.
 
@@ -176,7 +152,7 @@ from src.train import train_model
 model, history = train_model(X_train, y_train, X_val, y_val)
 ```
 
-Evaluate predictions:
+### 3. Evaluation
 
 ```python
 from src.evaluate import dice_coefficient, process_predictions
@@ -185,15 +161,33 @@ binary_predictions = process_predictions(predicted_masks)
 dice = dice_coefficient(y_test, binary_predictions)
 ```
 
+### 4. Inference
+
+Run prediction with a trained checkpoint:
+
+```bash
+python src/predict.py \
+  --image path/to/input_mri.png \
+  --checkpoint checkpoints/model2.hdf5 \
+  --output-dir outputs
+```
+
+The script saves:
+
+- `outputs/predicted_mask.png`
+- `outputs/prediction_overlay.png`
+
 ## Project Documents
 
-- `configs/unet_2d.yaml`: main 2D U-Net experiment configuration
-- `results/metrics.json`: reported model comparison metrics
-- `docs/dataset_setup.md`: dataset download and folder-structure guide
-- `docs/experiments.md`: experiment comparison, ablation notes, and error analysis
-- `docs/project_report.md`: detailed project writeup
-- `docs/model_card.md`: model card with intended use, limitations, and responsible-use notes
-- `checkpoints/README.md`: explanation of saved model checkpoints and experiment mapping
+| Document | Description |
+| --- | --- |
+| `configs/unet_2d.yaml` | Main 2D U-Net experiment configuration |
+| `results/metrics.json` | Reported model comparison metrics |
+| `docs/dataset_setup.md` | Dataset download and folder-structure guide |
+| `docs/experiments.md` | Experiment comparison, ablation notes, and error analysis |
+| `docs/project_report.md` | Detailed project writeup |
+| `docs/model_card.md` | Model card with intended use, limitations, and responsible-use notes |
+| `checkpoints/README.md` | Explanation of saved model checkpoints and experiment mapping |
 
 ## Responsible Use
 
