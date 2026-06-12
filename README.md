@@ -24,6 +24,48 @@ This project uses **semantic segmentation** to produce a binary mask for each MR
 
 ---
 
+## System Architecture
+
+```mermaid
+graph TD
+    A[MRI Scan Input] --> B[Image & Mask Loading]
+    B --> C[Preprocessing]
+    C --> D[Resize to 128x128]
+    C --> E[Normalization]
+
+    D --> F[2D U-Net Model]
+    E --> F
+
+    F --> G[Encoder]
+    G --> H[Bottleneck]
+    H --> I[Decoder]
+    G -.->|Skip Connections| I
+
+    I --> J[Sigmoid Output]
+    J --> K[Predicted Mask]
+
+    K --> L{Loss Computation}
+    L --> M[Dice Loss]
+    L --> N[Weighted BCE]
+
+    M --> O[Backpropagation & Checkpointing]
+    N --> O
+
+    K --> P[Dice Coefficient Evaluation]
+
+    classDef input fill:#d4edda,stroke:#28a745,stroke-width:2px;
+    classDef model fill:#cce5ff,stroke:#004085,stroke-width:2px;
+    classDef output fill:#fff3cd,stroke:#ffc107,stroke-width:2px;
+    classDef eval fill:#f8d7da,stroke:#dc3545,stroke-width:2px;
+
+    class A,B input;
+    class F,G,H,I,J model;
+    class K,M,N output;
+    class P eval;
+```
+
+---
+
 ## Results
 
 The best reported model used a tuned Dice-aware objective and achieved the strongest segmentation performance.
