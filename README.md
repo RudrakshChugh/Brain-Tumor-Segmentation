@@ -53,10 +53,10 @@ graph TD
 
     K --> P[Dice Coefficient Evaluation]
 
-    classDef input fill:#d4edda,stroke:#28a745,stroke-width:2px;
-    classDef model fill:#cce5ff,stroke:#004085,stroke-width:2px;
-    classDef output fill:#fff3cd,stroke:#ffc107,stroke-width:2px;
-    classDef eval fill:#f8d7da,stroke:#dc3545,stroke-width:2px;
+    classDef input fill:#d4edda,stroke:#28a745,stroke-width:2px,color:#333;
+    classDef model fill:#cce5ff,stroke:#004085,stroke-width:2px,color:#333;
+    classDef output fill:#fff3cd,stroke:#ffc107,stroke-width:2px,color:#333;
+    classDef eval fill:#f8d7da,stroke:#dc3545,stroke-width:2px,color:#333;
 
     class A,B input;
     class F,G,H,I,J model;
